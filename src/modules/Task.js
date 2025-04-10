@@ -1,4 +1,4 @@
-import { format, isDate } from "date-fns";
+import { format, isDate, compareAsc } from "date-fns";
 
 /* I wavered between throwing errors and just defaulting behavior.
  * Eventually, I realized that since this isn't user-facing and I control what users can do with it,
@@ -58,6 +58,13 @@ export default class Task {
         else {
             this.#complete = true;
         }
+    }
+
+    // Things related to tasks themselves are the responsibility of the Task class; I almost put this in Project until I decided that wasn't right
+    static Compare(task1, task2) {
+        if (task1.priority < task2.priority) return -1;
+        else if (task1.priority > task2.priority) return 1;
+        else return compareAsc(task1.dueDate, task2.dueDate);
     }
 
 }
