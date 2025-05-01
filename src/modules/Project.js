@@ -17,8 +17,8 @@ export default class Project {
         }
     }
 
-    addTask(name, description = undefined, priorityLevel = undefined, date = undefined) {
-        try { this.#tasks.push(new Task(name, description, priorityLevel, date)); } catch (e) {
+    addTask(TaskToAdd) {
+        try { this.#tasks.push(TaskToAdd); } catch (e) {
             throw new Error("Somehow, adding a new Task failed.", { cause: e });
         }
     }
