@@ -3,7 +3,7 @@ import Task from "./Task";
 export default class Project {
     #tasks = [];
 
-    constructor(name, description) {
+    constructor(name, description = '') {
         this.name = name;
         this.description = description;
     }
@@ -21,6 +21,7 @@ export default class Project {
         try { this.#tasks.push(TaskToAdd); } catch (e) {
             throw new Error("Somehow, adding a new Task failed.", { cause: e });
         }
+        this.sortTasks();
     }
 
     sortTasks() {
