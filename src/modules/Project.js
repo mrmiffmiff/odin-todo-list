@@ -33,7 +33,20 @@ export default class Project {
         return {
             name: this.name,
             description: this.description,
-            tasks: this.#tasks,
+            _tasks: this.#tasks,
         }
+    }
+
+    static Reviver(key, value) {
+        if (key === '_tasks') {
+            return value.map((task) => Task.fromJSON(task));
+        }
+        return value;
+    }
+
+    static fromJSON(json) {
+        const desProject = new Project(json.name, json.description);
+        for (const task of json._tasks) desProject.addTask(task);
+        return desProject;
     }
 }

@@ -70,12 +70,18 @@ export default class Task {
     // Because I use private instances, I have to make my own serialization method for stringifying
     toJSON() {
         return {
-            'name': this.name,
-            'description': this.description,
-            '#complete': this.#complete,
-            '#priority': this.#priority,
-            '#dueDate': this.#dueDate,
+            name: this.name,
+            description: this.description,
+            _complete: this.#complete,
+            _priority: this.#priority,
+            _dueDate: this.#dueDate,
         }
+    }
+
+    static fromJSON(json) {
+        const desTask = new Task(json.name, json.description, json._priority, new Date(json._dueDate));
+        if (json._complete) desTask.switchComplete();
+        return desTask;
     }
 
 }
