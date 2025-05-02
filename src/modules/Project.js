@@ -27,4 +27,13 @@ export default class Project {
     sortTasks() {
         this.#tasks.sort(Task.Compare);
     }
+
+    // Because I use private instances, I have to make my own serialization method for stringifying
+    toJSON() {
+        return {
+            name: this.name,
+            description: this.description,
+            tasks: this.#tasks,
+        }
+    }
 }
