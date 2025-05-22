@@ -35,4 +35,27 @@ export default class ToDoList {
         const index = this.customProjects.indexOf(project);
         this.customProjects.splice(index, 1);
     }
+
+    // I don't need a toJSON method here, since I'm not using private instances
+    // I do need a reviver, though, to make sure Project's fromJSON method is used
+    static Reviver(key, value) {
+        if (key === 'customProjects') {
+            return value.map((project) => Project.fromJSON(project));
+        }
+        if (key === 'inbox') {
+            return Project.fromJSON(value);
+        }
+        // If it's not a project, just return the value
+        // This is a bit redundant, but it makes it clear that this is the default case and accounts for potential model changes
+        return value;
+    }
+
+    // I do need a fromJSON to make sure that when we deserialize it's actually an instance of this class. But since these instances aren't private
+    // I can just set them directly.
+    static fromJSON(json) {
+        const desList = new ToDoList();
+        desList.inbox = json.inbox;
+        desList.customProjects = json.customProjects;
+        return desList;
+    }
 }
