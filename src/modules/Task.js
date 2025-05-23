@@ -24,6 +24,14 @@ export default class Task {
         this.#dueDate = date;
     }
 
+    setName(name) {
+        this.name = name;
+    }
+
+    setDescription(description) {
+        this.description = description;
+    }
+
     get completionStatus() {
         return this.#complete;
     }

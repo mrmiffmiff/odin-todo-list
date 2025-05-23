@@ -18,14 +18,43 @@ export default class Project {
     }
 
     addTask(TaskToAdd) {
+        if (this.hasTask(TaskToAdd.name)) {
+            console.log("Can't duplicate Task names in any one project!");
+            return;
+        }
         try { this.#tasks.push(TaskToAdd); } catch (e) {
             throw new Error("Somehow, adding a new Task failed.", { cause: e });
         }
         this.sortTasks();
     }
 
+    getTasks() {
+        return this.#tasks;
+    }
+
+    getTask(name) {
+        return this.#tasks.find((task) => task.name === name);
+    }
+
+    hasTask(name) {
+        return this.#tasks.some((task) => task.name === name);
+    }
+
+    deleteTask(task) {
+        const index = this.#tasks.indexOf(task);
+        this.#tasks.splice(index, 1);
+    }
+
     sortTasks() {
         this.#tasks.sort(Task.Compare);
+    }
+
+    setName(name) {
+        this.name = name;
+    }
+
+    setDescription(description) {
+        this.description = description;
     }
 
     // Because I use private instances, I have to make my own serialization method for stringifying
