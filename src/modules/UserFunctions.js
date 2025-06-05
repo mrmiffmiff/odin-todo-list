@@ -48,17 +48,17 @@ export default class UserFunctions {
         return project.description;
     }
 
-    static editProjectName(oldName, newName) {
+    static editProjectName(project, newName) {
         if (userList.hasProject(newName)) {
             console.log("Can't duplicate project names!")
             return;
         }
-        userList.getProject(oldName).setName(newName);
+        project.setName(newName);
         persist();
     }
 
-    static editProjectDescription(name, description) {
-        userList.getProject(name).setDescription(description);
+    static editProjectDescription(project, description) {
+        project.setDescription(description);
         persist();
     }
 
