@@ -25,6 +25,11 @@ export default class UserFunctions {
         return userList.getProjects().map((project) => project.name);
     }
 
+    static getProject(name) {
+        if (name === "Inbox") return userList.getInbox();
+        else return userList.getProject(name);
+    }
+
     static createProject(project) {
         userList.addProject(project);
         persist();
@@ -33,6 +38,14 @@ export default class UserFunctions {
     static deleteProject(name) {
         userList.deleteProject(userList.getProject(name));
         persist();
+    }
+
+    static getProjectName(project) {
+        return project.name;
+    }
+
+    static getProjectDescription(project) {
+        return project.description;
     }
 
     static editProjectName(oldName, newName) {
