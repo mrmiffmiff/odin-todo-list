@@ -33,7 +33,7 @@ function renderProjects() {
 
         li.querySelector(".delete-btn").addEventListener("click", (e) => {
             e.stopPropagation();
-            // showDeleteProjectModal(name);
+            showDeleteProjectModal(name);
         });
     });
 
@@ -154,6 +154,45 @@ function showEditProjectModal(projectName) {
         modal.innerHTML = ``;
     });
 }
+
+function showDeleteProjectModal(projectName) {
+    const project = UserFunctions.getProject(projectName);
+    const overlay = document.getElementById("modal-overlay");
+    const modal = document.getElementById("modal-content");
+    modal.innerHTML = `
+    <h3>Delete Project</h3>
+    <h4>${UserFunctions.getProjectName(project)}</h4>
+    <p>Are you sure you want to delete this project?</p>
+    <div class="modal-actions">
+        <button id="save-delete">Confirm</button>
+        <button id="cancel-delete">Cancel</button>
+    </div>
+    `
+    overlay.style.display = "flex";
+
+    document.getElementById('save-delete').addEventListener("click", () => {
+        const activeProjectEl = document.querySelector(".active");
+        const activeProject = (activeProjectEl.dataset.project || "Inbox");
+        UserFunctions.deleteProject(project);
+        overlay.style.display = "none";
+        modal.innerHTML = ``;
+        renderProjects();
+        // If the active project was the one deleted, default to Inbox
+        const actualActiveProject = (UserFunctions.getProject(activeProject) || UserFunctions.getProject("Inbox"));
+        document.querySelectorAll(".project-link").forEach(link => {
+            if ((link.dataset.project || "Inbox") === UserFunctions.getProjectName(actualActiveProject)) {
+                link.classList.add("active");
+            }
+        });
+        renderProjectContent(UserFunctions.getProjectName(actualActiveProject));
+    });
+
+    document.getElementById('cancel-delete').addEventListener("click", () => {
+        overlay.style.display = "none";
+        modal.innerHTML = ``;
+    });
+}
+
 
 function renderProjectContent(projectName) {
     const project = UserFunctions.getProject(projectName);

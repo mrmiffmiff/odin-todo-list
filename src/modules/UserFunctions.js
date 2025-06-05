@@ -35,8 +35,8 @@ export default class UserFunctions {
         persist();
     }
 
-    static deleteProject(name) {
-        userList.deleteProject(userList.getProject(name));
+    static deleteProject(project) {
+        userList.deleteProject(project);
         persist();
     }
 
