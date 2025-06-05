@@ -5,6 +5,9 @@ function renderProjects() {
     // Remove all except Inbox and divider
     projectList.innerHTML = `
         <li id="inbox-link" class="project-link">Inbox</li>
+        <li>
+            <button id="add-project-btn" class="add-project-btn">+ Add Project</btn>
+        </li>
         <hr class="sidebar-divider">
     `;
 
@@ -34,6 +37,11 @@ function renderProjects() {
         });
     });
 
+    // Add listener for create button
+    document.getElementById("add-project-btn").addEventListener("click", () => {
+        showAddProjectModal();
+    })
+
     // Add click listeners
     projectList.querySelectorAll(".project-link").forEach(link => {
         link.addEventListener("click", () => {
@@ -43,6 +51,54 @@ function renderProjects() {
             renderProjectContent(link.dataset.project || "Inbox");
         });
     });
+}
+
+function showAddProjectModal() {
+    const overlay = document.getElementById("modal-overlay");
+    const modal = document.getElementById("modal-content");
+    modal.innerHTML = `
+    <h3>Add Project</h3>
+    <label for="new-title">Title:</label><br>
+    <input type="text" id="new-title">
+    <br>
+    <label for="new-desc">Description:</label><br>
+        <textarea id="new-desc"></textarea>
+    <div class="modal-actions">
+        <button id="save-new">Save</button>
+        <button id="cancel-new">Cancel</button>
+    </div>
+    `;
+    overlay.style.display = "flex";
+
+    document.getElementById("save-new").addEventListener("click", () => {
+        const activeProjectEl = document.querySelector(".active");
+        const activeProject = (activeProjectEl.dataset.project || "Inbox");
+        const name = document.getElementById("new-title").value.trim();
+        const desc = document.getElementById("new-desc").value;
+        if (!name) {
+            alert("Project name cannot be empty!");
+            return;
+        }
+        if (UserFunctions.getProject(name)) {
+            alert("Can't duplicate project names!");
+            return;
+        }
+        UserFunctions.createProject(name, desc);
+        overlay.style.display = "none";
+        modal.innerHTML = ``;
+        renderProjects();
+        document.querySelectorAll(".project-link").forEach(link => {
+            if ((link.dataset.project || "Inbox") === activeProject) {
+                link.classList.add("active");
+            }
+        });
+        renderProjectContent(activeProject);
+    });
+
+    document.getElementById("cancel-new").addEventListener("click", () => {
+        overlay.style.display = "none";
+        modal.innerHTML = ``;
+    })
 }
 
 function showEditProjectModal(projectName) {
@@ -68,19 +124,24 @@ function showEditProjectModal(projectName) {
         const activeProject = (activeProjectEl.dataset.project || "Inbox");
         const newTitle = document.getElementById("edit-title").value.trim();
         const newDesc = document.getElementById("edit-desc").value;
-        // edit description first prior to changing title
-        UserFunctions.editProjectDescription(project, newDesc)
-        if (newTitle && newTitle != UserFunctions.getProjectName(project)) {
+        if (!newTitle) {
+            alert("Project name cannot be empty!");
+            return;
+        }
+        else if (newTitle != UserFunctions.getProjectName(project)) {
             if (UserFunctions.getProject(newTitle)) {
-                alert("Can't duplicate project names! Leaving existing title!")
+                alert("Can't duplicate project names!");
+                return;
             }
             else {
                 UserFunctions.editProjectName(project, newTitle);
             }
         }
+        UserFunctions.editProjectDescription(project, newDesc);
         overlay.style.display = "none";
+        modal.innerHTML = ``;
         renderProjects();
-        const actualActiveProject = (UserFunctions.getProject(activeProject) || newTitle);
+        const actualActiveProject = (UserFunctions.getProject(activeProject) || UserFunctions.getProject(newTitle));
         document.querySelectorAll(".project-link").forEach(link => {
             if ((link.dataset.project || "Inbox") === UserFunctions.getProjectName(actualActiveProject)) {
                 link.classList.add("active");

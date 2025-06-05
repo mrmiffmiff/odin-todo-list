@@ -30,8 +30,8 @@ export default class UserFunctions {
         else return userList.getProject(name);
     }
 
-    static createProject(project) {
-        userList.addProject(project);
+    static createProject(name, description = '') {
+        userList.addProject(new Project(name, description));
         persist();
     }
 
