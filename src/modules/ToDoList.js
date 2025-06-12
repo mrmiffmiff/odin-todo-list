@@ -1,6 +1,8 @@
 import Project from "./Project";
 
 export default class ToDoList {
+    showCompletedTasks = true;
+
     constructor() {
         this.inbox = new Project("Inbox", "");
         this.customProjects = [];
@@ -36,6 +38,12 @@ export default class ToDoList {
         this.customProjects.splice(index, 1);
     }
 
+    toggleShowCompletedTasks() {
+        if (this.showCompletedTasks)
+            this.showCompletedTasks = false;
+        else this.showCompletedTasks = true;
+    }
+
     // I don't need a toJSON method here, since I'm not using private instances
     // I do need a reviver, though, to make sure Project's fromJSON method is used
     static Reviver(key, value) {
@@ -54,8 +62,12 @@ export default class ToDoList {
     // I can just set them directly.
     static fromJSON(json) {
         const desList = new ToDoList();
-        desList.inbox = json.inbox;
-        desList.customProjects = json.customProjects;
+        if (Object.getOwnPropertyNames(json).includes("showCompletedTasks"))
+            desList.showCompletedTasks = json.showCompletedTasks;
+        if (Object.getOwnPropertyNames(json).includes("inbox"))
+            desList.inbox = json.inbox;
+        if (Object.getOwnPropertyNames(json).includes("customProjects"))
+            desList.customProjects = json.customProjects;
         return desList;
     }
 }

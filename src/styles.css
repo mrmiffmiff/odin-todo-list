@@ -12,6 +12,21 @@ footer {
     text-align: center;
 }
 
+.toggle-completed-btn {
+    margin-left: 1em;
+    padding: 0.4em 1em;
+    font-size: 1em;
+    border: none;
+    border-radius: 4px;
+    background-color: #444;
+    color: #fff;
+    cursor: pointer;
+}
+
+.toggle-completed-btn:hover {
+    background-color: #666;
+}
+
 .container {
     display: flex;
     min-height: 80vh;
@@ -120,6 +135,27 @@ footer {
     margin-top: 0;
 }
 
+.project-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1em;
+}
+
+.add-task-btn {
+    background-color: #444;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 0.4em 1em;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+.add-task-btn:hover {
+    background-color: #666;
+}
+
 .before-description {
     margin-bottom: 0;
 }
@@ -166,4 +202,125 @@ footer {
     display: flex;
     gap: 1rem;
     justify-content: flex-end;
+}
+
+.task-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.task-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    padding: 0.75em 1em;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    cursor: pointer;
+    position: relative;
+}
+
+.task-item:hover {
+    background-color: #ececec;
+}
+
+.task-checkbox {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid #bbb;
+    margin-right: 1em;
+    appearance: none;
+    outline: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.task-checkbox:checked {
+    border-color: green;
+}
+
+.task-checkbox.priority-1 {
+    border-color: red;
+}
+
+.task-checkbox:checked.priority-1 {
+    background-color: red;
+    border-color: green;
+}
+
+.task-checkbox.priority-2 {
+    border-color: orange;
+}
+
+.task-checkbox:checked.priority-2 {
+    background-color: orange;
+    border-color: green;
+}
+
+.task-checkbox.priority-3 {
+    border-color: blue;
+}
+
+.task-checkbox:checked.priority-3 {
+    background-color: blue;
+    border-color: green;
+}
+
+.task-checkbox.priority-4 {
+    border-color: grey;
+}
+
+.task-checkbox:checked.priority-4 {
+    background-color: grey;
+    border-color: green;
+}
+
+.task-name {
+    flex: 1;
+    font-size: 1.05em;
+    color: #222;
+    margin-right: 1em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.task-name.complete {
+    text-decoration: line-through;
+    color: #aaa;
+    opacity: 0.7;
+}
+
+.task-due-date {
+    color: #888;
+    font-size: 0.95em;
+    margin-left: 1em;
+    flex-shrink: 0;
+    min-width: 80px;
+    text-align: right;
+}
+
+.delete-task-btn {
+    background-color: #c00;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    font-size: 1.1em;
+    margin-left: 0.5em;
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.delete-task-btn:hover {
+    opacity: 1;
+    background-color: #a00;
 }

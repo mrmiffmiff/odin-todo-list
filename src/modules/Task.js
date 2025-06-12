@@ -54,6 +54,10 @@ export default class Task {
         return format(this.#dueDate, 'PPP');
     }
 
+    get dueDateForModal() {
+        return format(this.#dueDate, 'yyyy-MM-dd');
+    }
+
     set dueDate(date) {
         if (!isDate(date)) throw new TypeError("Date is not a date, how strange.");
         this.#dueDate = date;
@@ -72,7 +76,7 @@ export default class Task {
     static Compare(task1, task2) {
         if (task1.priority < task2.priority) return -1;
         else if (task1.priority > task2.priority) return 1;
-        else return compareAsc(task1.dueDate, task2.dueDate);
+        else return compareAsc(task1.#dueDate, task2.#dueDate);
     }
 
     // Because I use private instances, I have to make my own serialization method for stringifying

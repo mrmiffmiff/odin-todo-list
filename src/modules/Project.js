@@ -43,6 +43,7 @@ export default class Project {
     deleteTask(task) {
         const index = this.#tasks.indexOf(task);
         this.#tasks.splice(index, 1);
+        this.sortTasks();
     }
 
     sortTasks() {

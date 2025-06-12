@@ -5,6 +5,7 @@ import Task from "./Task";
 import Project from "./Project";
 import ToDoList from "./ToDoList";
 import Storage from "./Storage";
+import { add } from "date-fns";
 
 // Load in the toDoList
 const userList = Storage.loadList();
@@ -68,6 +69,64 @@ export default class UserFunctions {
             return userList.getProject(projectName).getTasks().map((task) => task.name);
         }
         return userList.getInbox().getTasks().map((task) => task.name);
+    }
+
+    static getTasks(project) {
+        return project.getTasks();
+    }
+
+    static toggleCompletion(task) {
+        task.switchComplete();
+        persist();
+    }
+
+    static setTaskName(task, name) {
+        task.setName(name);
+        persist();
+    }
+
+    static setTaskDescription(task, desc) {
+        task.setDescription(desc);
+        persist();
+    }
+
+    static setTaskPriority(project, task, priority) {
+        task.priority = priority;
+        project.sortTasks();
+        persist();
+    }
+
+    static setTaskDate(project, task, date) {
+        let nonEmptyDate = (date === '') ? new Date() : date;
+        task.dueDate = add(new Date(nonEmptyDate), {
+            minutes: new Date().getTimezoneOffset(),
+        });
+        project.sortTasks();
+        persist();
+    }
+
+    static getShowCompletedTasks() {
+        return userList.showCompletedTasks;
+    }
+
+    static userToggleShowCompletedTasks() {
+        userList.toggleShowCompletedTasks();
+        persist();
+    }
+
+    static deleteTaskFromProject(project, task) {
+        project.deleteTask(task);
+        persist();
+    }
+
+    static addTaskToProject(project, name, desc, priority, date) {
+        let nonEmptyDate = (date === '') ? new Date() : date;
+        let properDate = add(new Date(nonEmptyDate), {
+            minutes: new Date().getTimezoneOffset(),
+        });
+        let newTask = new Task(name, desc, priority, properDate);
+        project.addTask(newTask);
+        persist();
     }
 
     // I'm realizing that much of what I'm doing here isn't precisely SOLID... maybe I should move on to doing some of the UI...

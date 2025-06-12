@@ -14,24 +14,24 @@ function renderProjects() {
     // Add custom projects
     const projects = UserFunctions.listProjects();
     projects.forEach(name => {
-        const li = document.createElement("li");
-        li.innerHTML = `
+        const projectItem = document.createElement("li");
+        projectItem.innerHTML = `
             <span class="project-name">${name}</span>
             <span class="project-buttons">
                 <button class="edit-btn" title="Edit project">E</button>
                 <button class="delete-btn" title="Delete project">&#10006;</button>
             </span>
         `;
-        li.className = "project-link";
-        li.dataset.project = name;
-        projectList.appendChild(li);
+        projectItem.className = "project-link";
+        projectItem.dataset.project = name;
+        projectList.appendChild(projectItem);
 
-        li.querySelector(".edit-btn").addEventListener("click", (e) => {
+        projectItem.querySelector(".edit-btn").addEventListener("click", (e) => {
             e.stopPropagation();
             showEditProjectModal(name);
         });
 
-        li.querySelector(".delete-btn").addEventListener("click", (e) => {
+        projectItem.querySelector(".delete-btn").addEventListener("click", (e) => {
             e.stopPropagation();
             showDeleteProjectModal(name);
         });
@@ -111,7 +111,7 @@ function showEditProjectModal(projectName) {
     <input type="text" id="edit-title" value="${UserFunctions.getProjectName(project)}">
     <br>
     <label for="edit-desc">Description:</label><br>
-        <textarea id="edit-desc">${UserFunctions.getProjectDescription(project) || ""}</textarea>
+    <textarea id="edit-desc">${UserFunctions.getProjectDescription(project) || ""}</textarea>
     <div class="modal-actions">
         <button id="save-edit">Save</button>
         <button id="cancel-edit">Cancel</button>
@@ -197,12 +197,27 @@ function showDeleteProjectModal(projectName) {
 function renderProjectContent(projectName) {
     const project = UserFunctions.getProject(projectName);
     const main = document.querySelector(".main-content");
-    const title = main.querySelector("h2");
+    const projectHeader = main.querySelector(".project-header");
+    const title = projectHeader.querySelector("h2");
     const taskList = main.querySelector(".task-list");
+    //Empty tasklist after transition
+    taskList.innerHTML = ``;
 
     // Set the title
     title.textContent = UserFunctions.getProjectName(project);
     title.classList.remove("before-description");
+
+    // Add a button to the header; remove old if present
+    const oldButton = projectHeader.querySelector(".add-task-btn");
+    if (oldButton) oldButton.remove();
+    const addTaskBtn = document.createElement("button");
+    addTaskBtn.classList.add("add-task-btn");
+    addTaskBtn.title = "Add Task";
+    addTaskBtn.textContent = "Add Task";
+    addTaskBtn.addEventListener("click", () => {
+        showAddTaskModal(project);
+    });
+    projectHeader.appendChild(addTaskBtn);
 
     // Possibly remove and possibly set the description
     const currDesc = document.querySelector(".project-description");
@@ -214,10 +229,198 @@ function renderProjectContent(projectName) {
         main.insertBefore(newDesc, taskList);
         title.classList.add("before-description");
     }
+
+    const tasks = UserFunctions.getTasks(project).filter(task => UserFunctions.getShowCompletedTasks() || !task.completionStatus);
+    tasks.forEach(task => {
+        const taskItem = document.createElement("li");
+        taskItem.classList.add("task-item");
+        taskItem.dataset.task = task.name;
+        taskItem.innerHTML = `
+        <input type="checkbox" class = "task-checkbox priority-${task.priority}" ${task.completionStatus ? "checked" : ""}>
+        <span class = "task-name">${task.name}</span>
+        <span class = "task-due-date">${task.dueDate}</span>
+        <button class="delete-task-btn" title="Delete Task">&#10006;</button>
+        `;
+
+        // Logic to switch completion
+        const checkbox = taskItem.querySelector(".task-checkbox");
+        checkbox.addEventListener("click", (e) => {
+            e.stopPropagation();
+        });
+        checkbox.addEventListener("change", () => {
+            UserFunctions.toggleCompletion(task);
+            renderProjectContent(project.name);
+        });
+
+        const deleteBtn = taskItem.querySelector(".delete-task-btn");
+        deleteBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            showDeleteTaskModal(project, task);
+        });
+
+        taskItem.addEventListener("click", () => {
+            showEditTaskModal(project, task);
+        });
+
+        taskList.appendChild(taskItem);
+    });
+
+}
+
+function showAddTaskModal(project) {
+    const overlay = document.getElementById("modal-overlay");
+    const modal = document.getElementById("modal-content");
+    modal.innerHTML =
+        `
+    <h3>Add Task</h3>
+    <label for="add-task-name">Title:</label>
+    <input type="text" id="add-task-name">
+    <br>
+    <label for="add-task-desc">Description:</label><br>
+    <textarea id="add-task-desc"></textarea>
+    <br>
+    <label for="add-task-priority">Priority:</label>
+    <input type="number" id="add-task-priority" max="4" min="1" value="4">
+    <br>
+    <label for="add-task-date">Due Date:</label>
+    <input type="date" id="add-task-date">
+    <div class="modal-actions">
+        <button id="save-add-task">Save</button>
+        <button id="cancel-add-task">Cancel</button>
+    </div>
+    `
+    overlay.style.display = "flex";
+
+    document.getElementById("save-add-task").addEventListener("click", () => {
+        const newTitle = document.getElementById("add-task-name").value.trim();
+        const newDescription = document.getElementById("add-task-desc").value;
+        const newPriority = document.getElementById("add-task-priority").valueAsNumber;
+        const newDate = document.getElementById("add-task-date").value;
+        if (!newTitle) {
+            alert("Task name cannot be empty!");
+            return;
+        }
+        else if (project.getTask(newTitle)) {
+            alert("Can't duplicate Task names in any one project!");
+            return;
+        }
+        else UserFunctions.addTaskToProject(project, newTitle, newDescription, newPriority, newDate);
+        overlay.style.display = "none";
+        modal.innerHTML = ``;
+        renderProjectContent(project.name);
+    });
+
+    document.getElementById("cancel-add-task").addEventListener("click", () => {
+        overlay.style.display = "none";
+        modal.innerHTML = ``;
+    });
+}
+
+function showEditTaskModal(project, task) {
+    const overlay = document.getElementById("modal-overlay");
+    const modal = document.getElementById("modal-content");
+    modal.innerHTML =
+        `
+    <h3>Edit Task</h3>
+    <label for="edit-task-name">Title:</label>
+    <input type="text" id="edit-task-name" value="${task.name}">
+    <br>
+    <label for="edit-task-desc">Description:</label><br>
+    <textarea id="edit-task-desc">${task.description}</textarea>
+    <br>
+    <label for="edit-task-priority">Priority:</label>
+    <input type="number" id="edit-task-priority" max="4" min="1" value="${task.priority}">
+    <br>
+    <label for="edit-task-date">Due Date:</label>
+    <input type="date" id="edit-task-date" value="${task.dueDateForModal}">
+    <div class="modal-actions">
+        <button id="save-edit-task">Save</button>
+        <button id="cancel-edit-task">Cancel</button>
+    </div>
+    `
+    overlay.style.display = "flex";
+
+    document.getElementById("save-edit-task").addEventListener("click", () => {
+        const newTitle = document.getElementById("edit-task-name").value.trim();
+        if (!newTitle) {
+            alert("Task name cannot be empty!");
+            return;
+        }
+        else if (newTitle != task.name) {
+            if (project.getTask(newTitle)) {
+                alert("Can't duplicate Task names in any one project!");
+                return;
+            }
+            else {
+                UserFunctions.setTaskName(task, newTitle);
+            }
+        }
+        const newDescription = document.getElementById("edit-task-desc").value;
+        UserFunctions.setTaskDescription(task, newDescription);
+        const newPriority = document.getElementById("edit-task-priority").valueAsNumber;
+        UserFunctions.setTaskPriority(project, task, newPriority);
+        const newDate = document.getElementById("edit-task-date").value;
+        UserFunctions.setTaskDate(project, task, newDate);
+        overlay.style.display = "none";
+        modal.innerHTML = ``;
+        renderProjectContent(project.name);
+    });
+
+    document.getElementById("cancel-edit-task").addEventListener("click", () => {
+        overlay.style.display = "none";
+        modal.innerHTML = ``;
+    });
+}
+
+function showDeleteTaskModal(project, task) {
+    const overlay = document.getElementById("modal-overlay");
+    const modal = document.getElementById("modal-content");
+    modal.innerHTML =
+        `
+    <h3>Delete Task</h3>
+    <h4>${task.name}</h4>
+    <p>Are you sure you want to delete this task?</p>
+    <div class="modal-actions">
+        <button id="save-delete-task">Confirm</button>
+        <button id="cancel-delete-task">Cancel</button>
+    </div>
+    `
+    overlay.style.display = "flex";
+
+    document.getElementById("save-delete-task").addEventListener("click", () => {
+        UserFunctions.deleteTaskFromProject(project, task);
+        overlay.style.display = "none";
+        modal.innerHTML = ``;
+        renderProjectContent(project.name);
+    });
+
+    document.getElementById("cancel-delete-task").addEventListener("click", () => {
+        overlay.style.display = "none";
+        modal.innerHTML = ``;
+    });
+}
+
+function initializeTasksToggle() {
+    const toggleBtn = document.getElementById("toggle-completed-btn");
+    function updateToggleBtn() {
+        if (UserFunctions.getShowCompletedTasks()) {
+            toggleBtn.textContent = "Hide Completed Tasks";
+        } else {
+            toggleBtn.textContent = "Show Completed Tasks";
+        }
+    }
+    updateToggleBtn();
+    toggleBtn.addEventListener("click", () => {
+        UserFunctions.userToggleShowCompletedTasks();
+        updateToggleBtn();
+        const active = document.querySelector(".project-link.active");
+        renderProjectContent(active ? (active.dataset.project || "Inbox") : "Inbox");
+    })
 }
 
 export default function initialRender() {
     renderProjects();
     document.getElementById("inbox-link").classList.add("active"); // Want to start with inbox of course
     renderProjectContent("Inbox");
+    initializeTasksToggle();
 }
